@@ -9,6 +9,7 @@ GMainLoop *main_loop;
 static void interrupt_signal_handler(int signum) {
         g_main_loop_quit(main_loop);
 }
+
 int main (int argc, char **argv) {
 	struct sigaction sig_action;
 

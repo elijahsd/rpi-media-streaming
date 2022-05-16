@@ -6,7 +6,7 @@
     </specVersion>
     <device>
         <deviceType>urn:schemas-iridiumrain-net:device:MediaPlayer:1</deviceType>
-        <friendlyName>Bedroom</friendlyName>
+        <friendlyName>Bedroom:5000</friendlyName>
         <manufacturer>IridiumRain</manufacturer>
         <modelName>MediaPlayer</modelName>
         <UDN>uuid:725c5672-d3ec-11ec-9d64-0242ac120002</UDN>
