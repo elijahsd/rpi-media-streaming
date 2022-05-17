@@ -26,8 +26,12 @@ int set(int delta) {
 	
 	snd_mixer_elem_t* elem = snd_mixer_find_selem(handle, sid);
 
+	/*
 	snd_mixer_selem_get_playback_volume_range(elem, &min, &max);
 	snd_mixer_selem_get_playback_volume(elem, 0, &volume);
+	*/
+	snd_mixer_selem_get_capture_volume_range(elem, &min, &max);
+	snd_mixer_selem_get_capture_volume(elem, 0, &volume);
 
 	volume += delta * ((max - min) / 300);
 	if (volume > max) {
@@ -37,7 +41,8 @@ int set(int delta) {
 		volume = min;
 	}
 
-	snd_mixer_selem_set_playback_volume_all(elem, volume);
+	// snd_mixer_selem_set_playback_volume_all(elem, volume);
+	snd_mixer_selem_set_capture_volume_all(elem, volume);
 
 	snd_mixer_close(handle);
 }
