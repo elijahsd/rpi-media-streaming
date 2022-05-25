@@ -1,0 +1,12 @@
+AMP:
+jackd -d alsa &
+jack_netsource -H 192.168.10.10 -i2 -o0 -I0 -O0 &
+jack_connect netjack:capture_1 system:playback_1
+jack_connect netjack:capture_2 system:playback_2
+
+
+Client:
+jackd -d netone &
+alsa_in -c2 &
+jack_connect alsa_in:capture_1 system:playback_1
+jack_connect alsa_in:capture_2 system:playback_2

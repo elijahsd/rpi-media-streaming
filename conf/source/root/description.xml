@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0" configId="1">
+    <specVersion>
+        <major>2</major>
+        <minor>0</minor>
+    </specVersion>
+    <device>
+        <deviceType>urn:schemas-iridiumrain-net:device:MediaPlayer:1</deviceType>
+        <friendlyName>Bedroom</friendlyName>
+        <manufacturer>IridiumRain</manufacturer>
+        <modelName>MediaPlayer</modelName>
+        <UDN>uuid:725c5672-d3ec-11ec-9d64-0242ac120002</UDN>
+    </device>
+</root>

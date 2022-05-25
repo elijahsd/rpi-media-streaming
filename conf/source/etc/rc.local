@@ -17,7 +17,12 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
-sudo /usr/bin/volume &
-sudo /usr/bin/upnpclient Bedroom &
+/usr/local/bin/jackd -d netone &
+
+/usr/bin/volume &
+
+cd /root
+/usr/bin/upnpserver &
+cd -
 
 exit 0
