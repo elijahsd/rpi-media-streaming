@@ -1,0 +1,8 @@
+systemctl daemon-reload
+systemctl enable systemd-networkd.service systemd-networkd-wait-online.service
+
+Sink:
+systemctl enable jack_sink.service
+
+Source:
+systemctl enable jack_source.service

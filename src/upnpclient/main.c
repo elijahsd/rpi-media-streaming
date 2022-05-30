@@ -1,9 +1,10 @@
 #include <libgupnp/gupnp-control-point.h>
-#include <stdlib.h>
-#include <string.h>
+#include <errno.h>
+#include <glib.h>
 #include <locale.h>
 #include <signal.h>
-#include <glib.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 
 static const char *source;
@@ -13,6 +14,34 @@ GMainLoop *main_loop;
 
 static void interrupt_signal_handler(G_GNUC_UNUSED int signum) {
 	g_main_loop_quit(main_loop);
+}
+
+static pthread_t thread;
+static int filedes[2];
+
+static void *msg_reader(void *) {
+	char buffer[4096];
+	printf("Start reading messages");
+	while (1) {
+		ssize_t count = read(filedes[0], buffer, sizeof(buffer));
+		if (count == -1) {
+			if (errno == EINTR) {
+				continue;
+			} else {
+			}
+		} else if (count == 0) {
+			break;
+		} else {
+			printf("MSG: %s\n", buffer);
+			if (strncmp(buffer, "Connected :-)", 13)) {
+				continue;
+			}
+			system("jack_connect netjack:capture_1 system:playback_1");
+			system("jack_connect netjack:capture_2 system:playback_2");
+		}
+	}
+	close(filedes[0]);
+	printf("Stop reading messages");
 }
 
 static void device_proxy_available_cb(G_GNUC_UNUSED GUPnPControlPoint *cp,
@@ -26,27 +55,24 @@ static void device_proxy_available_cb(G_GNUC_UNUSED GUPnPControlPoint *cp,
 	if (strncmp(name, source, strlen(source))) {
 		return;
 	}
-	char *port = strchr(name, ':');
-	if (!port) {
-		return;
-	}
-	port++;
 
 	const SoupURI *uri = gupnp_device_info_get_url_base(GUPNP_DEVICE_INFO(proxy));
-	const char *ip = soup_uri_get_host(uri);
-	g_print("My device is found: %s (%s:%s)\n", source, ip, port);
+	const char *ip = soup_uri_get_host((SoupURI *)uri);
+	g_print("My device is found: %s (%s)\n", source, ip);
 
-	char h[256];
-	char p[16];
-	memset(h, 0, 256);
-	memset(p, 0, 16);
-	sprintf(h, "host=%s", ip);
-	sprintf(p, "port=%s", port);
+	pipe(filedes);
 
 	pid = fork();
 	if (pid == 0) {
-		execl("/usr/bin/gst-launch-1.0", "gst-launch-1.0", "alsasrc", "device=plughw:0", "!", "audioconvert", "!", "rtpL16pay", "!", "udpsink", h, p, (char *) 0);
+		while ((dup2(filedes[1], STDOUT_FILENO) == -1) && (errno == EINTR)) {}
+		close(filedes[1]);
+		close(filedes[0]);
+		execl("/usr/local/bin/jack_netsource", "jack_netsource", "-H", ip, "-i2", "-o0", "-I0", "-O0", (char *) 0);
+		//execl("/usr/local/bin/jack_netsource", "jack_netsource", "-H", "192.168.10.10", "-i2", "-o0", "-I0", "-O0", (char *) 0);
 	}
+	close(filedes[1]);
+
+	pthread_create(&thread, NULL, msg_reader, NULL);
 }
 
 static void device_proxy_unavailable_cb(G_GNUC_UNUSED GUPnPControlPoint *cp,
@@ -65,6 +91,8 @@ static void device_proxy_unavailable_cb(G_GNUC_UNUSED GUPnPControlPoint *cp,
 		kill(pid, SIGTERM);
 		int status;
 		waitpid(pid, &status, 0);
+		pid = 0;
+		pthread_join(thread, NULL);
 	}
 }
 

@@ -24,7 +24,7 @@ int main (int argc, char **argv) {
 		return -1;
 	}
 
-	GUPnPRootDevice *dev = gupnp_root_device_new(context, "description.xml", ".");
+	GUPnPRootDevice *dev = gupnp_root_device_new(context, "description.xml", "/root");
 
 	gupnp_root_device_set_available(dev, TRUE);
 

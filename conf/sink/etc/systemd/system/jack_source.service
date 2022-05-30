@@ -1,0 +1,12 @@
+[Unit]
+Description=Jack Source
+After=systemd-networkd-wait-online.service
+Wants=systemd-networkd-wait-online.service
+
+[Service]
+ExecStart=/root/jack_start_source.sh
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

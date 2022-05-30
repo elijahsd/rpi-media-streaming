@@ -1,0 +1,13 @@
+[Unit]
+Description=Jack Sink
+After=systemd-networkd-wait-online.service
+Wants=systemd-networkd-wait-online.service
+
+[Service]
+ExecStart=/root/jack_start_sink.sh
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+
